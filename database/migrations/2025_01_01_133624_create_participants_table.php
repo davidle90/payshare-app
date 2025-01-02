@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('participants', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('payment_id')->constrained('payments');
+            $table->foreignId('member_id')->constrained('users');
+            $table->decimal('amount', 8, 2)->default(0);
             $table->timestamps();
         });
     }
