@@ -11,7 +11,7 @@ class GroupController extends Controller
 {
     public function index(): View
     {
-        $groups = auth()->user->groups;
+        $groups = auth()->user()->groups;
 
         return view('pages.public.groups.index', [
             'groups' => $groups

@@ -12,15 +12,15 @@
             <thead class="font-bold text-gray-700 uppercase bg-gray-50">
                 <tr>
                     <th scope="col" class="px-6 py-3">
-                        PayShare Group Name
+                        Payment name
                     </th>
                 </tr>
             </thead>
             <tbody>
-                @foreach ($groups as $group)
-                    <tr class="go-to-url cursor-pointer bg-white border-b" data-url="{{ route('groups.view', ['id' => $group->id]) }}">
+                @foreach ($group->payments as $payment)
+                    <tr class="go-to-url cursor-pointer bg-white border-b" data-url="{{ route('payments.view', ['id' => $payment->id]) }}">
                         <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                            {{ $group->name }}
+                            {{ $payment->name }}
                         </th>
                     </tr>
                 @endforeach
