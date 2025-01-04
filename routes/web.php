@@ -16,7 +16,11 @@ Route::middleware('auth', 'verified')->group(function () {
     Route::get('/', [PublicController::class, 'index'])->name('index');
 
     Route::get('/groups', [GroupController::class, 'index'])->name('groups.index');
-    Route::get('/groups/{id}', [GroupController::class, 'view'])->name('groups.view');
+    Route::get('/groups/view/{id}', [GroupController::class, 'view'])->name('groups.view');
+    Route::get('/groups/create', [GroupController::class, 'create'])->name('groups.create');
+    Route::get('/groups/edit/{id}', [GroupController::class, 'edit'])->name('groups.edit');
+    Route::post('/groups/store', [GroupController::class, 'store'])->name('groups.store');
+    Route::post('/groups/delete', [GroupController::class, 'delete'])->name('groups.delete');
 });
 
 Route::middleware(['auth', 'admin'])->group(function () {

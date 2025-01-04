@@ -8,6 +8,14 @@
 
 @section('content')
     <div class="container mx-auto py-5">
+        <div class="mb-5">
+            {{ $group->reference_id }}
+        </div>
+
+        <div class="mb-5">
+            <a href="{{ route('groups.edit', ['id' => $group->id]) }}" class="px-3 py-2 text-white bg-green-600 hover:bg-green-700">Edit</a>
+        </div>
+
         <table class="w-full text-sm text-left rtl:text-right text-gray-500 border">
             <thead class="font-bold text-gray-700 uppercase bg-gray-50">
                 <tr>

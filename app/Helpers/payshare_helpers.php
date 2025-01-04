@@ -6,7 +6,7 @@ use App\Models\Debt;
 use App\Models\Group;
 use Illuminate\Support\Str;
 
-class helpers {
+class payshare_helpers {
 
     public static function update_total_expenses(Group $group)
     {
