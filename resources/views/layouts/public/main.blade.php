@@ -17,6 +17,9 @@
         <!-- JQuery -->
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
+        <!-- toastr -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" integrity="sha512-vKMx8UnXk60zUwyUnUPM3HbQo8QfmNx7+ltw8Pm5zLusl1XIfwcxo8DbWCqMGKaWeNxWA8yrx5v3SaVpMvR3CA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
         @yield('cdn')
 
         <style>
@@ -83,5 +86,26 @@
                 });
             });
         </script>
+
+        <!-- flowbite scripts -->
+        <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
+
+        <!-- toastr scripts -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+        @if(Session::has('action_message'))
+            <script>
+                toastr.options = {
+                    'progressBar': true,
+                    'closeButton': true,
+                }
+
+                toastr.success('{{ Session::get('action_message') }}', 'Success', {timeOut: 6000});
+                // toastr.info('{{ Session::get('message') }}');
+                // toastr.warning('{{ Session::get('message') }}');
+                // toastr.error('{{ Session::get('message') }}');
+            </script>
+            {{ Session::forget('action_message') }}
+        @endif
     </body>
 </html>

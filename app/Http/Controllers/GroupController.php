@@ -48,30 +48,35 @@ class GroupController extends Controller
     {
         $input = [
             'id' => $request->input('id'),
-            'name' => $request->input('name')
+            'name' => $request->input('name'),
+            'owner_id' => auth()->user()->id
         ];
 
         //TODO: Validate
 
+        DB::beginTransaction();
+
         try {
-            DB::beginTransaction();
 
-            $group = Group::firstOrNew(['id' => $input['id']]);
+            $group = Group::find($input['id']);
 
-            $group->name = $input['name'];
-            $group->owner_id = auth()->user()->id;
-            $group->reference_id = payshare_helpers::generate_reference_id(3, $group->name, $group->id);
+            if(!$group){
+                $group = payshare_helpers::create_group($input);
+            } else {
+                $group = payshare_helpers::update_group($group, $input);
+            }
 
-            $group->save();
-
-            $group->members()->attach($group->owner_id);
+            $group->members()->syncWithoutDetaching($group->owner_id);
 
             DB::commit();
 
             $response = [
                 'status' => 1,
+                'redirect' => route('groups.edit', ['id' => $group->id]),
                 'message' => 'Group has been created.'
             ];
+
+            $request->session()->put('action_message', $response['message']);
 
         } catch (Exception $e) {
 
@@ -86,33 +91,24 @@ class GroupController extends Controller
         return response()->json($response);
     }
 
-    public function delete(Request $request): View
+    public function delete(Request $request): JsonResponse
     {
-        $groups = auth()->user->groups;
-
-        $id = $request->get('id');
+        $id = $request->get('delete_id');
 
         try {
             DB::beginTransaction();
 
-            $group = Group::find($id);
-
-            foreach($group->payments as $payment){
-                $payment->contributors()->delete();
-                $payment->participants()->delete();
-                $payment->delete();
-            }
-
-            $group->members()->detach();
-            $group->debts()->delete();
-            $group->delete();
+            payshare_helpers::delete_group($id);
 
             DB::commit();
 
             $response = [
-                'status' => 0,
-                'message' => 'Group has been deleted.'
+                'status' => 1,
+                'message' => 'Group has been deleted.',
+                'redirect' => route('groups.index')
             ];
+
+            $request->session()->put('action_message', $response['message']);
 
         } catch (Exception $e) {
             DB::rollback();
@@ -123,8 +119,6 @@ class GroupController extends Controller
             ];
         }
 
-        return view('pages.public.groups.index', [
-            'groups' => $groups
-        ]);
+        return response()->json($response);
     }
 }

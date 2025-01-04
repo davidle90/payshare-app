@@ -107,7 +107,8 @@ class payshare_helpers {
         return $reference_id;
     }
 
-    public static function get_model($model, $reference_id){
+    public static function get_model($model, $reference_id)
+    {
         $get_model = $model::where('reference_id', $reference_id)->first();
 
         if(!$get_model){
@@ -119,5 +120,41 @@ class payshare_helpers {
         }
 
         return $get_model;
+    }
+
+    public static function create_group($data)
+    {
+        $group = Group::create($data);
+        $group->reference_id = payshare_helpers::generate_reference_id(3, $group->name, $group->id);
+        $group->save();
+
+        return $group;
+    }
+
+    public static function update_group($group, $data)
+    {
+        $group->name = isset($data['name']) ? $data['name'] : $group->name;
+        $group->owner_id = isset($data['owner_id']) ? $data['owner_id'] : $group->owner_id;
+        $group->reference_id = isset($data['reference_id']) ? $data['reference_id'] : $group->reference_id;
+        $group->total_expenses = isset($data['total_expenses']) ? $data['total_expenses'] : $group->total_expenses;
+        $group->is_resolved = isset($data['is_resolved']) ? $data['is_resolved'] : $group->is_resolved;
+        $group->save();
+
+        return $group;
+    }
+
+    public static function delete_group($id)
+    {
+        $group = Group::find($id);
+
+        foreach($group->payments as $payment){
+            $payment->contributors()->delete();
+            $payment->participants()->delete();
+            $payment->delete();
+        }
+
+        $group->members()->detach();
+        $group->debts()->delete();
+        $group->delete();
     }
 }
