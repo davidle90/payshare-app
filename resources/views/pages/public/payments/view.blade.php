@@ -7,8 +7,10 @@
 @endsection
 
 @section('content')
-    <div class="container mx-auto py-5">
-
+    <div class="container mx-auto">
+        <div class="text-center py-5">
+            Welcome to PayShareApp
+        </div>
     </div>
 @endsection
 

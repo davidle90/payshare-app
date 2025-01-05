@@ -23,9 +23,12 @@ class PaymentController extends Controller
         ]);
     }
 
-    public function create(): View
+    public function create($group_id): View
     {
-        return view('pages.public.payments.edit');
+        $group = Group::find($group_id);
+        return view('pages.public.payments.edit', [
+            'group' => $group
+        ]);
     }
 
     public function edit($id): View
