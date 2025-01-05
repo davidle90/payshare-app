@@ -24,6 +24,11 @@ class Payment extends Model
         'updated_at',
     ];
 
+    public function createdBy() : BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by', 'id');
+    }
+
     public function group() : BelongsTo
     {
         return $this->belongsTo(Group::class, 'group_id', 'id');

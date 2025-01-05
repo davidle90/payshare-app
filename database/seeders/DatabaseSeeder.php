@@ -14,13 +14,13 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-        // Group::factory(3)->create();
+        User::factory(10)->create();
+        Group::factory(3)->create();
 
-        // $groups = Group::all();
-        // foreach($groups as $group){
-        //     $group->members()->attach($group->owner_id);
-        // }
+        $groups = Group::all();
+        foreach($groups as $group){
+            $group->members()->attach($group->owner_id);
+        }
 
         User::factory()->create([
             'name' => 'Test User',

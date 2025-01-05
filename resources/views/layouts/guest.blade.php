@@ -15,11 +15,15 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans text-gray-900 antialiased">
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
-            <div>
-                <a href="/">
-                    <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
-                </a>
+        <div class="min-h-screen flex flex-col gap-4 sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
+            <div class="flex flex-col justify-center items-center gap-4">
+                <h1 class="text-4xl text-center">
+                    <a href="/">PayShare App</a>
+                </h1>
+                <p class="text-lg max-w-screen-md">
+                    Effortlessly manage shared expenses with Payshare App.
+                    Create groups, add members, and easily track and settle bills all in one place.
+                </p>
             </div>
 
             <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg">

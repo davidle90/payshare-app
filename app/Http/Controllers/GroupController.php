@@ -2,16 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\payshare_helpers;
 use App\Models\Group;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class GroupController extends Controller
 {
     public function index(): View
     {
-        $groups = auth()->user->groups;
+        $groups = auth()->user()->groups;
 
         return view('pages.public.groups.index', [
             'groups' => $groups
@@ -43,15 +46,79 @@ class GroupController extends Controller
 
     public function store(Request $request): JsonResponse
     {
-        return response()->json();
+        $input = [
+            'id' => $request->input('id'),
+            'name' => $request->input('name'),
+            'owner_id' => auth()->user()->id
+        ];
+
+        //TODO: Validate
+
+        DB::beginTransaction();
+
+        try {
+
+            $group = Group::find($input['id']);
+
+            if(!$group){
+                $group = payshare_helpers::create_group($input);
+            } else {
+                $group = payshare_helpers::update_group($group, $input);
+            }
+
+            $group->members()->syncWithoutDetaching($group->owner_id);
+
+            DB::commit();
+
+            $response = [
+                'status' => 1,
+                'redirect' => route('groups.edit', ['id' => $group->id]),
+                'message' => 'Group has been created.'
+            ];
+
+            $request->session()->put('action_message', $response['message']);
+
+        } catch (Exception $e) {
+
+            DB::rollback();
+
+            $response = [
+                'status' => 0,
+                'message' => 'Error while saving group.'
+            ];
+        }
+
+        return response()->json($response);
     }
 
-    public function delete(Request $request): View
+    public function delete(Request $request): JsonResponse
     {
-        $groups = auth()->user->groups;
+        $id = $request->get('delete_id');
 
-        return view('pages.public.groups.index', [
-            'groups' => $groups
-        ]);
+        try {
+            DB::beginTransaction();
+
+            payshare_helpers::delete_group($id);
+
+            DB::commit();
+
+            $response = [
+                'status' => 1,
+                'message' => 'Group has been deleted.',
+                'redirect' => route('groups.index')
+            ];
+
+            $request->session()->put('action_message', $response['message']);
+
+        } catch (Exception $e) {
+            DB::rollback();
+
+            $response = [
+                'status' => 0,
+                'message' => 'Error while deleting group.'
+            ];
+        }
+
+        return response()->json($response);
     }
 }
