@@ -59,11 +59,11 @@
             </thead>
             <tbody>
                 @foreach ($group->payments as $payment)
-                    <tr class="go-to-url cursor-pointer bg-white border-b" data-url="{{ route('payments.view', ['id' => $payment->id]) }}">
+                    <tr class="go-to-url cursor-pointer bg-white border-b" data-url="{{ route('payments.view', ['group_id' => $group->id, 'payment_id' => $payment->id]) }}">
                         <td class="px-6 py-4">{{ $payment->created_at }}</td>
                         <td class="px-6 py-4">{{ $payment->label }}</td>
                         <td class="px-6 py-4">{{ $payment->total }}</td>
-                        <td class="px-6 py-4">{{ $payment->created_by }}</td>
+                        <td class="px-6 py-4">{{ $payment->createdBy->name }}</td>
                     </tr>
                 @endforeach
             </tbody>

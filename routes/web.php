@@ -23,9 +23,9 @@ Route::middleware('auth', 'verified')->group(function () {
     Route::post('/groups/store', [GroupController::class, 'store'])->name('groups.store');
     Route::post('/groups/delete', [GroupController::class, 'delete'])->name('groups.delete');
 
-    Route::get('/groups/{group_id}/payments/view/{id}', [PaymentController::class, 'view'])->name('payments.view');
+    Route::get('/groups/{group_id}/payments/view/{payment_id}', [PaymentController::class, 'view'])->name('payments.view');
     Route::get('/groups/{group_id}/payments/create', [PaymentController::class, 'create'])->name('payments.create');
-    Route::get('/groups/{group_id}/payments/edit/{id}', [PaymentController::class, 'edit'])->name('payments.edit');
+    Route::get('/groups/{group_id}/payments/edit/{payment_id}', [PaymentController::class, 'edit'])->name('payments.edit');
     Route::post('/groups/payments/store', [PaymentController::class, 'store'])->name('payments.store');
     Route::post('/groups/payments/delete', [PaymentController::class, 'delete'])->name('payments.delete');
 });

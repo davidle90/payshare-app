@@ -17,12 +17,14 @@ use Illuminate\View\View;
 
 class PaymentController extends Controller
 {
-    public function view($id): View
+    public function view($group_id, $payment_id): View
     {
-        $payment = Payment::find($id);
+        $group = Group::find($group_id);
+        $payment = Payment::find($payment_id);
 
         return view('pages.public.payments.view', [
-            'payment' => $payment
+            'payment' => $payment,
+            'group' => $group
         ]);
     }
 
@@ -34,58 +36,38 @@ class PaymentController extends Controller
         ]);
     }
 
-    public function edit($id): View
+    public function edit($group_id, $payment_id): View
     {
-        $payment = Payment::find($id);
+        $group = Group::find($group_id);
+        $payment = Payment::find($payment_id);
 
         return view('pages.public.payments.edit', [
-            'payment' => $payment
+            'payment' => $payment,
+            'group' => $group
         ]);
     }
 
     public function store(Request $request): JsonResponse
     {
         $input = [
+            'payment_id' => $request->get('payment_id'),
             'group_id' => $request->get('group_id'),
             'created_by' => auth()->user()->id,
+            'label' => $request->get('label'),
             'participants' => $request->get('participants'),
             'contributors' => $request->get('contributors')
         ];
 
-        dd($input);
-
         try {
             DB::beginTransaction();
 
-            $group = Group::find($input['group_id']);
+            $payment = Payment::find($input['payment_id']);
 
-            $payment = Payment::create($input);
-            $payment->reference_id = payshare_helpers::generate_reference_id(3, $payment->label, $payment->id);
-            $payment->save();
-
-            foreach($input['participants'] as $participant) {
-                $new_participant = Participant::firstOrNew(['member_id' => $participant['id'], 'payment_id' => $payment->id]);
-                $new_participant->amount = $participant['amount'] ?? 0;
-                $new_participant->save();
+            if(!$payment){
+                payshare_helpers::create_payment($input);
+            } else {
+                payshare_helpers::update_payment($input);
             }
-
-            foreach($input['contributors'] as $contributor) {
-                $new_contributor = Contributor::firstOrNew(['member_id' => $contributor['id'], 'payment_id' => $payment->id]);
-                $new_contributor->amount = $contributor['amount'] ?? 0;
-                $new_contributor->save();
-            }
-
-            $total = 0;
-            foreach($payment->contributors as $payment_contributor){
-                $total += $payment_contributor->amount;
-            }
-
-            $payment->total = $total;
-            $payment->reference_id = payshare_helpers::generate_reference_id(5, $payment->label, $payment->id);
-            $payment->save();
-
-            payshare_helpers::calculate_balance($group);
-            payshare_helpers::update_total_expenses($group);
 
             DB::commit();
 
@@ -98,7 +80,8 @@ class PaymentController extends Controller
 
             $response = [
                 'status' => 0,
-                'message' => 'Error while saving payment.'
+                'message' => 'Error while saving payment.',
+                'error' => $e->getMessage()
             ];
         }
 

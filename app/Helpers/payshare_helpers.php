@@ -2,8 +2,11 @@
 
 namespace App\Helpers;
 
+use App\Models\Contributor;
 use App\Models\Debt;
 use App\Models\Group;
+use App\Models\Participant;
+use App\Models\Payment;
 use Illuminate\Support\Str;
 
 class payshare_helpers {
@@ -156,5 +159,113 @@ class payshare_helpers {
         $group->members()->detach();
         $group->debts()->delete();
         $group->delete();
+    }
+
+    public static function create_payment($input)
+    {
+        $group = Group::find($input['group_id']);
+        $payment = Payment::create($input);
+        $payment->reference_id = payshare_helpers::generate_reference_id(3, $payment->label, $payment->id);
+        $payment->save();
+
+        foreach($input['participants'] as $participant) {
+            if(!$participant['id']){
+                continue;
+            }
+
+            $new_participant = Participant::firstOrNew(['member_id' => $participant['id'], 'payment_id' => $payment->id]);
+            $new_participant->amount = $participant['amount'] ?? 0;
+            $new_participant->save();
+        }
+
+        foreach($input['contributors'] as $contributor) {
+            if(!$contributor['id']){
+                continue;
+            }
+
+            $new_contributor = Contributor::firstOrNew(['member_id' => $contributor['id'], 'payment_id' => $payment->id]);
+            $new_contributor->amount = $contributor['amount'] ?? 0;
+            $new_contributor->save();
+        }
+
+        $total = 0;
+        foreach($payment->contributors as $payment_contributor){
+            $total += $payment_contributor->amount;
+        }
+
+        $payment->total = $total;
+        $payment->reference_id = payshare_helpers::generate_reference_id(5, $payment->label, $payment->id);
+        $payment->save();
+
+        payshare_helpers::calculate_balance($group);
+        payshare_helpers::update_total_expenses($group);
+
+        return $payment;
+    }
+
+    public static function update_payment($input)
+    {
+        $group = Group::find($input['group_id']);
+        $payment = Payment::find($input['payment_id']);
+
+        $participant_ids = [];
+        $contributor_ids = [];
+
+        $payment->update($input);
+
+        foreach($input['contributors'] as $contributor){
+            if(!isset($contributor['id'])){
+                continue;
+            }
+            $contributor_ids[] = $contributor['id'];
+        }
+
+        foreach($input['participants'] as $participant){
+            if(!isset($participant['id'])){
+                continue;
+            }
+            $participant_ids[] = $participant['id'];
+        }
+
+        foreach($payment->contributors as $payment_contributor){
+            if(!in_array($payment_contributor->id, $contributor_ids)){
+                $payment_contributor->delete();
+            }
+        }
+
+        foreach($input['contributors'] as $contributor) {
+            if(!isset($contributor['id'])){
+                continue;
+            }
+            $new_contributor = Contributor::firstOrNew(['member_id' => $contributor['id'], 'payment_id' => $payment->id]);
+            $new_contributor->amount = $contributor['amount'] ?? 0;
+            $new_contributor->save();
+        }
+
+        foreach($payment->participants as $payment_participant){
+            if(!in_array($payment_participant->id, $participant_ids)){
+                $payment_participant->delete();
+            }
+        }
+
+        foreach($input['participants'] as $participant) {
+            if(!isset($participant['id'])){
+                continue;
+            }
+            $new_participant = Participant::firstOrNew(['member_id' => $participant['id'], 'payment_id' => $payment->id]);
+            $new_participant->amount = $participant['amount'] ?? 0;
+            $new_participant->save();
+        }
+
+        $payment->refresh();
+        $total = $payment->contributors->sum('amount');
+
+        $payment->total = $total;
+        $payment->save();
+
+        payshare_helpers::calculate_balance($group);
+        payshare_helpers::update_total_expenses($group);
+
+        return $payment;
     }
 }
