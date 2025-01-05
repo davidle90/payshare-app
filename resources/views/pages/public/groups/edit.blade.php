@@ -9,8 +9,32 @@
     @endif
 @endsection
 
+@section('sidebar')
+    <div class="w-1/6 p-5 border-r">
+        <ul class="mx-2 flex flex-col gap-2">
+            <li>
+                <a href="@if(isset($group)) {{ route('groups.view', ['id' => $group->id]) }} @else {{ route('groups.index') }} @endif" class="w-full block hover:bg-gray-200 font-medium text-sm px-5 py-2.5">
+                    Back
+                </a>
+            </li>
+            <li>
+                <button class="onSave w-full block hover:bg-green-200 font-medium text-sm px-5 py-2.5 text-start">
+                    Spara
+                </button>
+            </li>
+            @if(isset($group))
+                <li>
+                    <button data-modal-target="groupDeleteModal" data-modal-toggle="groupDeleteModal" class="w-full block hover:bg-red-200 font-medium text-sm px-5 py-2.5 text-start">
+                        Ta bort
+                    </button>
+                </li>
+            @endif
+        </ul>
+    </div>
+@endsection
+
 @section('content')
-    <div class="container mx-auto py-5">
+    <div class="container mx-auto p-5">
         <form id="onSaveForm" action="{{ route('groups.store') }}" method="POST" class="max-w-sm" autocomplete="off">
             @csrf
 
@@ -21,21 +45,6 @@
                 <input type="text" name="name" id="name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5" value="{{ $group->name ?? '' }}" />
             </div>
         </form>
-
-        <ul class="flex text-gray-900">
-            <li class="mb-5 mr-2">
-                <button class="onSave block text-white bg-green-600 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center" type="button">
-                    Spara
-                </button>
-            </li>
-            @if(isset($group))
-                <li class="mb-5">
-                    <button data-modal-target="groupDeleteModal" data-modal-toggle="groupDeleteModal" class="block text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center" type="button">
-                        Ta bort
-                    </button>
-                </li>
-            @endif
-        </ul>
     </div>
 @endsection
 

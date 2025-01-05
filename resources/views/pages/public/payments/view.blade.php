@@ -6,6 +6,9 @@
 @section('modals')
 @endsection
 
+@section('sidebar')
+@endsection
+
 @section('content')
     <div class="container mx-auto">
         <div class="text-center py-5">

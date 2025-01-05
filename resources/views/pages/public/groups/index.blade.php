@@ -6,12 +6,23 @@
 @section('modals')
 @endsection
 
-@section('content')
-    <div class="container mx-auto py-5">
-        <div class="mb-5">
-            <a href="{{ route('groups.create') }}" class="px-3 py-2 text-white bg-green-600 hover:bg-green-700">Create group</a>
-        </div>
+@section('sidebar')
+    <div class="w-1/6 p-5 border-r">
+        <ul class="mx-2 flex flex-col">
+            <li>
+                <a href="{{ route('groups.create') }}" class="w-full block hover:bg-green-200 font-medium text-sm px-5 py-2.5">
+                    Create group
+                </a>
+            </li>
+            <li>
+                <a href="#" class="w-full block hover:bg-gray-200 font-medium text-sm px-5 py-2.5">Join group</a>
+            </li>
+        </ul>
+    </div>
+@endsection
 
+@section('content')
+    <div class="container mx-auto p-5">
         <table class="w-full text-sm text-left rtl:text-right text-gray-500 border">
             <thead class="font-bold text-white uppercase bg-cyan-600">
                 <tr>

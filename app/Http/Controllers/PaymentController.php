@@ -3,12 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\payshare_helpers;
+use App\Models\Contributor;
 use App\Models\Group;
+use App\Models\Participant;
 use App\Models\Payment;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
@@ -42,7 +45,64 @@ class PaymentController extends Controller
 
     public function store(Request $request): JsonResponse
     {
-        return response()->json();
+        $input = [
+            'group_id' => $request->get('group_id'),
+            'created_by' => auth()->user()->id,
+            'participants' => $request->get('participants'),
+            'contributors' => $request->get('contributors')
+        ];
+
+        dd($input);
+
+        try {
+            DB::beginTransaction();
+
+            $group = Group::find($input['group_id']);
+
+            $payment = Payment::create($input);
+            $payment->reference_id = payshare_helpers::generate_reference_id(3, $payment->label, $payment->id);
+            $payment->save();
+
+            foreach($input['participants'] as $participant) {
+                $new_participant = Participant::firstOrNew(['member_id' => $participant['id'], 'payment_id' => $payment->id]);
+                $new_participant->amount = $participant['amount'] ?? 0;
+                $new_participant->save();
+            }
+
+            foreach($input['contributors'] as $contributor) {
+                $new_contributor = Contributor::firstOrNew(['member_id' => $contributor['id'], 'payment_id' => $payment->id]);
+                $new_contributor->amount = $contributor['amount'] ?? 0;
+                $new_contributor->save();
+            }
+
+            $total = 0;
+            foreach($payment->contributors as $payment_contributor){
+                $total += $payment_contributor->amount;
+            }
+
+            $payment->total = $total;
+            $payment->reference_id = payshare_helpers::generate_reference_id(5, $payment->label, $payment->id);
+            $payment->save();
+
+            payshare_helpers::calculate_balance($group);
+            payshare_helpers::update_total_expenses($group);
+
+            DB::commit();
+
+            $response = [
+                'status' => 1,
+                'message' => 'Payment has been saved.'
+            ];
+        } catch (Exception $e) {
+            DB::rollback();
+
+            $response = [
+                'status' => 0,
+                'message' => 'Error while saving payment.'
+            ];
+        }
+
+        return response()->json($response);
     }
 
     public function delete(Request $request): JsonResponse

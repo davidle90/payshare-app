@@ -6,36 +6,44 @@
 @section('modals')
 @endsection
 
+@section('sidebar')
+    <div class="w-1/6 p-5 border-r">
+        <ul class="mx-2 flex flex-col">
+            <li>
+                <a href="{{ route('groups.index') }}" class="w-full block hover:bg-gray-200 font-medium text-sm px-5 py-2.5">Back</a>
+            </li>
+            <li>
+                <a href="{{ route('groups.edit', ['id' => $group->id]) }}" class="w-full block hover:bg-gray-200 font-medium text-sm px-5 py-2.5">Edit</a>
+            </li>
+            <li>
+                <a href="{{ route('groups.index') }}" class="w-full block hover:bg-green-200 font-medium text-sm px-5 py-2.5">Add member</a>
+            </li>
+            <li>
+                <a href="{{ route('groups.index') }}" class="w-full block hover:bg-red-200 font-medium text-sm px-5 py-2.5">Leave group</a>
+            </li>
+        </ul>
+    </div>
+@endsection
+
 @section('content')
-    <div class="container mx-auto py-5">
+    <div class="container mx-auto p-5">
         <div class="mb-5">
-            <div>
-                {{ $group->name }}
-            </div>
-            <div>
+            <h1 class="text-3xl font-semibold mb-2">{{ $group->name }}</h1>
+            <div class="text-lg">
                 ID: {{ $group->reference_id }}
             </div>
-
         </div>
 
-
-        <div class="flex justify-between mb-3 sm:mb-0">
-            <div class="mb-5">
-                <a href="{{ route('groups.index') }}" class="border px-3 py-1 bg-gray-200 hover:bg-gray-300">Back</a>
-                <a href="{{ route('groups.edit', ['id' => $group->id]) }}" class="px-3 py-1 text-white bg-green-600 hover:bg-green-700">Edit</a>
-            </div>
+        <div class="flex justify-between mb-2">
             <div class="sm:flex justify-end space-y-4 sm:space-y-0">
                 <div>
-                    <a href="{{ route('payments.create', ['group_id' => $group->id]) }}" class="border px-3 py-1 hover:bg-gray-300">Add payment</a>
+                    <a href="{{ route('payments.create', ['group_id' => $group->id]) }}" class="border px-3 py-1 bg-green-200 hover:bg-green-300">Add payment</a>
                 </div>
                 <div>
                     <span class="cursor-pointer border px-3 py-1 hover:bg-gray-300">Charts</span>
                 </div>
                 <div>
                     <span class="cursor-pointer border px-3 py-1 hover:bg-gray-300">Resolve</span>
-                </div>
-                <div>
-                    <span class="cursor-pointer border px-3 py-1 bg-purple-300 hover:bg-purple-400">Leave group</span>
                 </div>
             </div>
         </div>

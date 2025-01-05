@@ -49,7 +49,12 @@
 
         <!-- Main -->
         <main class="grow bg-slate-50">
-            @yield('content')
+            <div class="h-screen grow flex">
+                @yield('sidebar')
+                <div class="w-full">
+                    @yield('content')
+                </div>
+            </div>
         </main>
 
         <!-- Footer -->
