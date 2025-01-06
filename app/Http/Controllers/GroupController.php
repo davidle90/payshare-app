@@ -47,12 +47,11 @@ class GroupController extends Controller
     public function store(Request $request): JsonResponse
     {
         $input = [
-            'id' => $request->input('id'),
+            'id' => $request->input('group_id'),
             'name' => $request->input('name'),
-            'owner_id' => auth()->user()->id
+            'owner_id' => auth()->user()->id,
+            'is_resolved' => $request->get('is_resolved', false)
         ];
-
-        //TODO: Validate
 
         DB::beginTransaction();
 
@@ -62,19 +61,25 @@ class GroupController extends Controller
 
             if(!$group){
                 $group = payshare_helpers::create_group($input);
+
+                $response = [
+                    'status' => 1,
+                    'redirect' => route('groups.edit', ['id' => $group->id]),
+                    'message' => 'Group has been created.'
+                ];
+
+                $group->members()->syncWithoutDetaching($group->owner_id);
+
             } else {
                 $group = payshare_helpers::update_group($group, $input);
+
+                $response = [
+                    'status' => 1,
+                    'message' => 'Group has been updated.'
+                ];
             }
 
-            $group->members()->syncWithoutDetaching($group->owner_id);
-
             DB::commit();
-
-            $response = [
-                'status' => 1,
-                'redirect' => route('groups.edit', ['id' => $group->id]),
-                'message' => 'Group has been created.'
-            ];
 
             $request->session()->put('action_message', $response['message']);
 
@@ -84,7 +89,8 @@ class GroupController extends Controller
 
             $response = [
                 'status' => 0,
-                'message' => 'Error while saving group.'
+                'message' => 'Error while saving group.',
+                'error' => $e->getMessage()
             ];
         }
 

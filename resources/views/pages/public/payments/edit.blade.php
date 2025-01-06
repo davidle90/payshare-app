@@ -58,7 +58,7 @@
                                         name="contributors[{{ $key }}][id]"
                                         value="{{ $member->id }}"
                                         class="rounded"
-                                        @if ($payment && $payment->contributors->contains('member_id', $member->id))
+                                        @if (isset($payment) && $payment->contributors->contains('member_id', $member->id))
                                             checked
                                         @endif
                                     >
@@ -71,7 +71,7 @@
                                     min="0"
                                     name="contributors[{{ $key }}][amount]"
                                     class="text-sm rounded-lg block w-50 p-1 ml-2"
-                                    @if ($payment && $payment->contributors->contains('member_id', $member->id))
+                                    @if (isset($payment) && $payment->contributors->contains('member_id', $member->id))
                                             value="{{ $payment->contributors()->where('member_id', $member->id)->first()->amount }}"
                                     @endif
                                 >
@@ -88,7 +88,7 @@
                                         name="participants[{{ $key }}][id]"
                                         value="{{ $member->id }}"
                                         class="w-4 h-4 rounded"
-                                        @if ($payment && $payment->participants->contains('member_id', $member->id))
+                                        @if (isset($payment) && $payment->participants->contains('member_id', $member->id))
                                             checked
                                         @endif
                                     >
@@ -101,7 +101,7 @@
                                     min="0"
                                     name="participants[{{ $key }}][amount]"
                                     class="text-sm rounded-lg block w-50 p-1 ml-2"
-                                    @if ($payment && $payment->participants->contains('member_id', $member->id))
+                                    @if (isset($payment) && $payment->participants->contains('member_id', $member->id))
                                             value="{{ $payment->participants()->where('member_id', $member->id)->first()->amount }}"
                                     @endif
                                 >
