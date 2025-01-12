@@ -13,8 +13,6 @@
                 cache: false,
                 dataType: 'json',
                 success: function (res) {
-                    console.log('asd');
-
                     if(res.status == 1){
                         if(res.redirect){
                             window.location = res.redirect;

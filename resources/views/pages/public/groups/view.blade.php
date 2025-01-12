@@ -40,10 +40,16 @@
                     <a href="{{ route('payments.create', ['group_id' => $group->id]) }}" class="border px-3 py-1 bg-green-200 hover:bg-green-300">Add payment</a>
                 </div>
                 <div>
-                    <span class="cursor-pointer border px-3 py-1 hover:bg-gray-300">Charts</span>
+                    <span class="cursor-pointer border px-3 py-1 hover:bg-gray-200">Charts</span>
                 </div>
                 <div>
-                    <span class="cursor-pointer border px-3 py-1 hover:bg-gray-300">Resolve</span>
+                    <span class="onResolve cursor-pointer border px-3 py-1 hover:bg-gray-200" data-group_id="{{ $group->id }}" data-csrf="{{ csrf_token() }}" data-isResolved="{{ $group->is_resolved ? 0 : 1 }}">
+                        @if ($group->is_resolved)
+                            Resolved
+                        @else
+                            Resolve
+                        @endif
+                    </span>
                 </div>
             </div>
         </div>
@@ -73,4 +79,33 @@
 
 @section('scripts')
     @include('includes.scripts.go-to-url')
+    <script>
+        $(document).ready(function () {
+            $('.onResolve').on('click', function () {
+
+                let group_id = $(this).attr('data-group_id');
+                let is_resolved = $(this).attr('data-isResolved');
+                let csrf_token = $(this).data('csrf');
+
+                $.ajax({
+                    url: '{{ route('groups.store') }}',
+                    method: 'POST',
+                    data: {
+                        group_id,
+                        is_resolved
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': csrf_token
+                    },
+                    cache: false,
+                    dataType: 'json',
+                    success: function (res) {
+                        if(res.status == 1){
+                            window.location.reload();
+                        }
+                    }
+                })
+            });
+        });
+    </script>
 @endsection
